@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII House with Flying Birds</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: white;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 80vh;
+            position: relative;
+            padding-top: 160px;
+        }
+
+        .house {
+            font-size: 16px;
+            line-height: 1.2;
+            white-space: pre;
+            cursor: pointer;
+            transition: transform 0.1s;
+            padding: 20px;
+            user-select: none;
+            color: black;
+        }
+
+        .house:hover {
+            transform: scale(1.05);
+        }
+
+        .house:active {
+            transform: scale(0.98);
+        }
+
+        .bird {
+            position: absolute;
+            font-size: 14px;
+            line-height: 1;
+            white-space: pre;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.5) rotate(-10deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .text-container {
+            margin-top: 30px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+            position: relative;
+        }
+
+        .text-line {
+            font-size: 18px;
+            margin: 5px 0;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards;
+            text-align: center;
+            color: black;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .instructions {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            font-size: 14px;
+            color: black;
+            padding: 15px;
+            text-align: left;
+            line-height: 1.4;
+            z-index: 10;
+            background: white;
+        }
+
+        .click-indicator {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: gray;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="instructions">
+        <em>Birds may find their way in through unseen cracks, and these sometimes overlooked entryways can grow and grow over time until you become just another pitstop during seasonal migrations.</em><br>
+        –Anonymous online pest service blog
+    </div>
+
+    <div class="container">
+        <div class="house" id="house">    ) )        /\
+   =====      /  \
+  *|*__|_____/ ** \**__________
+ |::::::::::/ |  | \:::::::::::|
+ |:::::::::/  ====  \::::::::::|
+ |::::::::/__________\:::::::::|
+ |_________|  ____  |__________|
+  | ______ | / || \ | _______ |
+  ||  |   || ====== ||   |   ||
+  ||--+---|| |    | ||---+---||
+  ||__|___|| |   o| ||___|___||
+  |========| |____| |=========|
+ (^^-^^^^^-|________|-^^^--^^^)
+ (,, , ,, ,/________\,,,, ,, ,)
+ ','',,,,' /__________\,,,',',;;</div>
+        <div class="click-indicator">Click me!</div>
+        
+        <div class="text-container" id="textContainer"></div>
+    </div>
+
+    <script>
+        const house = document.getElementById('house');
+        const textContainer = document.getElementById('textContainer');
+        let clickCount = 0;
+        
+        const textLines = [
+            "when you stop opening your hands to receive them",
+            "when you stop opening your eaves",
+            "dear lord, it has been a lifetime of flapping",
+            "the artistic caricature of shouts",
+            "four black cats coated in feathers and leaves",
+            "st. gertrude of nivelles, patron of cats, souls in purgatory",
+            "francis and patrick, holy associates of snakes",
+            "serpentine hand gestures, throwing coin sacks at aspen",
+            "colored lances with their bright red sashes",
+            "and i am tired of my own migration",
+            "patched crackwork in the building envelope",
+            "artificial barn owls, rats' nests, chipped wings",
+            "*a person's home is their castle*, sir edward coke, probably",
+            "the long silence after hauntings",
+            "painted faces at the upstairs windows",
+            "honest nons-hour prayer",
+            "dishonest placement of nets, snares",
+            "my own masks, blankets to weather the local shopping",
+            "the stocker from the local shop, they are named after st. barbara",
+            "fox or lynx on the balcony",
+            "other avivores",
+            "when the toes of all my shoes are pointed in the same direction",
+            "mercenary birders, the folk huntspersons",
+            "two brothers kept apart two arms' lengths",
+            "three brothers",
+            "the medieval portraits of the stars hung above gold domed saints dead (some) since before the time of christ",
+            "st. anne's lace on epiphany",
+            "the synaxis of st. john the forerunner",
+            "the saints francis and milburga attending to birds even in their afterlife",
+            "all we turn against after death",
+            "burnt burning odors dead long the willow replanted",
+            "cut, bend, draw branches resembling the arms of ancient doctrines",
+            "farmers limbs like chickenhawks, chimney brushing",
+            "trees like birding guns",
+            "task lists like physical manifestations of grief",
+            "doves notched into the coffin to flat-hat deliberately nowhere",
+            "hard acts to swallow, playing hard to see",
+            "a long pattern of running before relief",
+            "sonic mixtures of please and bereave",
+            "the shortest walk to the sea",
+            "red cars you wish you never rode in",
+            "cage parties to which you'd never go",
+            "figures of nebulous import projected from the balcony",
+            "the name next to yours on the treaty",
+            "the person next to you at the small town's common fire",
+            "public speaking",
+            "the public sing",
+            "committees, boards, bees",
+            "the preparation of larger nesting sites near the borders of your vast and well-managed property",
+            "the preservation of medieval manuscripts",
+            "the naughty birds in alt ages marginalia",
+            "the saucy birds lifting skirt-lengths",
+            "erotic birds cresting the soldier's breastplate",
+            "birds with bells, birds with plague fleas",
+            "birds with butterfly carts",
+            "i stretch my wings, grasp, stretch my wings, stretch my wings",
+            "grasp",
+            "the great birds of grid mark painting",
+            "collins' skylark",
+            "egyptian temple art",
+            "lascaux cave paintings",
+            "fabritius and asselijn",
+            "birds in my daughter's finger paint",
+            "shadow puppet birds on the wall",
+            "kidsbop played at a certain volume and directed toward the northeast",
+            "pocket weeping, canned laughter",
+            "the distant birds i make from the unicode presentational form for left vertical parentheses",
+            "︵︵"
+        ];
+
+        const birdDesigns = [
+            "︵︵"
+        ];
+
+        house.addEventListener('click', function(e) {
+            // Calculate how many birds to create based on click count
+            const birdsToCreate = Math.pow(2, Math.floor(clickCount / 10));
+            
+            // Create multiple birds randomly
+            for (let i = 0; i < birdsToCreate; i++) {
+                createBirdRandomly();
+            }
+            
+            // Add text line
+            if (clickCount < textLines.length) {
+                addTextLine(textLines[clickCount]);
+            } else {
+                addTextLine("︵︵");
+            }
+            
+            clickCount++;
+        });
+
+        function createBirdRandomly() {
+            const bird = document.createElement('div');
+            bird.className = 'bird';
+            bird.textContent = birdDesigns[0];
+            
+            // Get safe zones to avoid (title area, house area, text area)
+            const titleHeight = 120;
+            const houseRect = house.getBoundingClientRect();
+            const textRect = textContainer.getBoundingClientRect();
+            
+            // Calculate available positions
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            
+            let x, y;
+            let attempts = 0;
+            const maxAttempts = 50;
+            
+            do {
+                x = Math.random() * (windowWidth - 60); // Leave some margin
+                y = Math.random() * (windowHeight - 60); // Leave some margin
+                attempts++;
+            } while (attempts < maxAttempts && (
+                // Avoid title area
+                y < titleHeight ||
+                // Avoid text area (with padding)
+                (x > textRect.left - 100 && x < textRect.right + 100 && 
+                 y > textRect.top - 50 && y < textRect.bottom + 100)
+            ));
+            
+            // Position the bird
+            bird.style.left = x + 'px';
+            bird.style.top = y + 'px';
+            
+            document.body.appendChild(bird);
+        }
+
+        function addTextLine(text) {
+            // Clear previous text
+            textContainer.innerHTML = '';
+            
+            const textLine = document.createElement('div');
+            textLine.className = 'text-line';
+            textLine.textContent = text;
+            textLine.style.animationDelay = '0.5s';
+            
+            textContainer.appendChild(textLine);
+        }
+    </script>
+</body>
+</html>
